@@ -1,0 +1,754 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>Delaware Menus App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="format-detection" content="telephone=no">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" type="text/css" href="styles.css?3">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.0/css/swiper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.0/js/swiper.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+        /* Global Styles */
+
+        body {
+            margin: 0;
+            font-family: "Open Sans", Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            font-weight: lighter;
+            line-height: 1.5em;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            display: inline;
+        }
+    </style>
+    <script>
+        //-------------------------- GLOBAL VARIABLES ----------------------
+
+        var vJSON = ""
+        var d = new Date(); //new date object
+        var year = d.getFullYear(); //gets the year
+        var month = d.getMonth() + 1; //get the month
+        var date = d.getDate(); // gets the long date
+        var vDate = year + '-' + month + '-' + date;
+
+        //Stores all 7 days of the week (ordered from sunday to saturday 0-6)
+        var vDayArray = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        var vPrebuiltWeekCounter = 0;
+
+        var mySwiper; //Swiper application object
+
+        //FUNCTION: vBuildSingleSlide()
+        //CHANGED @: slideNextTransitionEnd
+        //Starts at 2 due to intial 2 slides prebuilt, adds 1 for every navigation forward
+        //@ slide 1, it will be 2 since @ slide 1 we are PREBUILDING 2 (2 is the 3rd slide, slides start at 0)
+        //resets back to 0 on the 6th slide (last day of the week)
+        var vBuildCounter = 2;
+
+        //FUNCTION: vFillOutTable()
+        //CHANGED @: slideNextTransitionEnd & slidePrevTransitionEnd
+        //Increased by 1 every forward and Decreased by 1 every previous
+        //Used to set the index for vCurrentDayArray[] (the array that starts at the current day of the week)
+        var vDateDisplayCounter = 0; //
+
+        //FUNCTION: vNextDate()
+        //CHANGED @: slideNextTransitionEnd
+        //Increased by 1 every time forward
+        //Value of it is added to vCurrentSlideDate & vCurrentDisplayDate, Value of it + 1 is added to vFutureDate
+        var vDayCounter = 0;
+
+        //FUNCTION: vBuildActivityRows()
+        //CHANGED @: slideNextTransitionEnd
+        //Stores the week number
+        //Increased by 1 every time it hits the last day of the week (increases by 1 every full week)
+        //on slide 5, it builds slide 6 and then it increases week by 1 so that the next slide (slide 0) will start at week 1
+        //for building html (any pre-building)
+        var vPrebuiltWeekCounter = 0;
+
+        //FUNCTION:vBuildObject & vFillOutTable
+        //CHANGED @: slideNextTransitionEnd
+        //Increased by 1 every forward, and reset when vCurrentWeekCounterIncreaser == 7
+        //for accessing the id of the slide
+        var vCurrentWeekCounter = 0;
+        var vCurrentWeekCounterIncreaser = 0;
+
+        //sets the function into a variable to return the Current Day Array (Sunday thru Saturday) for each slide
+        var vCurrentDayArray = vBuildCurrentDayArray();
+
+        //will store the HTML string
+        var vHtml = "";
+
+        var vFirstSlideBuilt = false;
+
+        //stores the guid for each date (date: GUID)
+        var vGUIDs = {};
+
+        //stores the date for the current slide that the user is updating
+        var vTempDate;
+
+        //returns month and day May 20 for current slide
+        var vCurrentDisplayDate;
+
+        //returns integer ex. 20190522 for current slide
+        var vCurrentSlideDate;
+
+        //returns month and day May 20 for future slide
+        var vFutureDisplayDate;
+
+        //returns integer ex. 20190522 for future slide
+        var vFutureDate;
+
+        //builds array for month for vCurrentDisplayDate & vFutureDisplayDate 
+        var vMonthArray = ["Janurary", "Feburary", "March", "April", "May", "June", "July", "August", "September", "October","November", "December"];
+
+        var vObject = {};
+
+        var vDayCounter2 = 0;
+
+        //-------------------------- GLOBAL VARIABLES END ----------------------
+
+        function vInitializeDesktopApp() {
+            mySwiper = new Swiper('.swiper-container', {
+                // Optional parameters
+                direction: 'horizontal',
+                loop: false,
+                on: {
+                    slideNextTransitionEnd: function() {
+                        vDayCounter += 1;
+                        vNextDate();
+                        vDayCounter2 += 1;
+                        vNextDate2();
+
+                        if (vDateDisplayCounter == 6) {
+                            vDateDisplayCounter = 0;
+                        }
+                        else {
+                            vDateDisplayCounter += 1;
+                        }
+
+                        if (vBuildCounter == 6) {
+                            mySwiper.appendSlide(vBuildSingleSlide(vBuildCounter));
+                            vPrebuiltWeekCounter += 1;
+                            vBuildCounter = 0;
+                        }
+                        else {
+                            mySwiper.appendSlide(vBuildSingleSlide(vBuildCounter));
+                            vBuildCounter += 1;
+                        }
+
+                        vCurrentWeekCounterIncreaser += 1;
+
+                        if (vCurrentWeekCounterIncreaser == 7) {
+                            vCurrentWeekCounter += 1;
+                            vCurrentWeekCounterIncreaser = 0;
+                        }
+
+                        vFillOutTable(vCurrentDayArray[vDateDisplayCounter + 1], vFutureDate);
+                        vFillOutTable(vCurrentDayArray[vDateDisplayCounter], vCurrentSlideDate);
+                        
+                        setBackgroundImage(vCurrentSlideDate + ".jpg");
+                    },
+                    slidePrevTransitionEnd: function() {
+                        vDateDisplayCounter -= 1;
+                        if (vDateDisplayCounter == -1) {
+                            vDateDisplayCounter = 6;
+                        }
+                        vDayCounter2 -= 1;
+                        vNextDate2();
+                        vFillOutTable(vCurrentDayArray[vDateDisplayCounter], vCurrentSlideDate);
+                        setBackgroundImage(vCurrentSlideDate + ".jpg");
+                    },
+                },
+                //prevents slide moving from simply clicking (desktop only)
+                threshold: 1,
+                // Navigation arrows
+                navigation: {
+                    nextEl: '',
+                    prevEl: '',
+                }
+            });
+        }
+
+        function vBuildCurrentDayArray() {
+            //updated array
+            var vCurrentDayArray = [];
+
+            var vCurrentDayNumber = d.getDay();
+
+            //sets the current day to be the first day in the array, now we need to make the rest of the elements
+            vCurrentDayArray[0] = vDayArray[d.getDay()];
+
+            var i2 = 0;
+
+            for (i = 1; i < 8; i++) {
+                //when it reaches the end of the array(saturday) -> loop back to the first array
+                if ((d.getDay() + i) > 6) {
+                    vCurrentDayArray[i] = vDayArray[i2];
+                    i2++;
+                }
+                else {
+                    vCurrentDayArray[i] = vDayArray[d.getDay() + i];
+                }
+            }
+            return vCurrentDayArray;
+        }
+
+        function mySubmit(theForm) {
+            $.ajax({ // create an AJAX call...
+                data: new FormData(theForm), // get the form data
+                type: $(theForm).attr('method'), // GET or POST
+                url: $(theForm).attr('action'), // the file to call
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        }
+            
+        function vUpdateProgress(Progress) {
+            //increase the width of the progress bar (green bar)
+			document.getElementById("vProgressBar").style.width = (Progress * 300) + "px";
+		}
+        
+        function xhrSubmitRow(theForm, vCategory){
+            var data = new FormData(theForm);
+            var type = $(theForm).attr('method');
+            var url = $(theForm).attr('action');
+            var xhr = new XMLHttpRequest();
+            document.getElementById("vProgressContainer").style.opacity = 1;
+            xhr.onload = function(){
+                $("#imageSelectedMessage").css("opacity", "1");
+                vGetThumbnail(vCurrentSlideDate, vCategory);
+                vFillOutTable(vCurrentDayArray[vDateDisplayCounter],vCurrentSlideDate);
+                document.getElementById("vProgressBar").style.width = "0px";
+                document.getElementById("vProgressContainer").style.opacity = 0;
+            }
+            xhr.upload.addEventListener("progress", function(evt){
+                if (evt.lengthComputable) {
+                    var percentage = evt.loaded / evt.total;
+                    vUpdateProgress(percentage);
+                }
+            }, false);
+            xhr.open(type, url);
+            xhr.send(data);
+        }
+        
+        //*************** ROWS EDIT AND STATIC END ***************
+
+        //Builds the Slide
+        function vBuildSlides(vSlidesCounter) {
+            //appends the html string to the vHtml variable
+            vHtml = vHtml + '<!-- VBUILDSSLIDES -->' +
+                '<div class="swiper-slide">' +
+                '<div class="vActivitiesTable">' +
+                '<div class="vDayRow">' +
+                '<form id="vUpload-image" action="./image.php" method="post" enctype="multipart/form-data">' +
+                '<div class="vUpload-wrapper">' +
+                '<h1>' + vCurrentDayArray[vSlidesCounter] + ' <span id="vCurrentDisplayDate' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '">' + vCurrentDisplayDate + '</h1>' +
+                '<input type="file" name="uploadfile" id="vUpload-image-input" onchange="mySubmit(this.form)">' +
+                '</div>' +
+                '<input type="hidden" name="upload" value="image">' +
+                '<input class="vUpload-image-date" id="vCurrentDate' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '" type="hidden" name="date" value="' + vCurrentSlideDate + '">' +
+                '</form>' +
+		'<div style="font-size: 25px; padding-left: 5px; padding-right: 5px; padding-top: 5px;">Sandwiches are always available during meal times</div>'+
+                '</div>' +
+                '<a href="https://www.dhalkc.com/community"><img class="vRedirectIcon" src="redirect-icon.png" alt="Redirect Icon"></a>' +
+                '<div class="container-fluid">' +
+                '<div class="row vBLDRow">' +
+                '<div class="col-sm p-0 vBreakfastHeadingColumn vHeadingColumn"><div class="vHeader"><h1>Breakfast</h1></div><div class="vColumn" id="vBreakfast' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '" onclick="vBuildEditModal(' + "'" + 'Breakfast' + "'" + ')"><div class="RowImage" id="vRowImageBreakfast' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '"></div><div class="descriptionDiv" id="vBreakfast' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + 'Desc"></div></div></div>' +
+                '<div class="col-sm p-0 vLunchHeadingColumn vHeadingColumn"><div class="vHeader"><h1>Lunch</h1></div><div class="vColumn" id="vLunch' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '" onclick="vBuildEditModal(' + "'" + 'Lunch' + "'" + ')"><div class="RowImage" id="vRowImageLunch' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '"></div><div class="descriptionDiv" id="vLunch' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + 'Desc"></div></div></div>' +
+                '<div class="col-sm p-0 vDinnerHeadingColumn vHeadingColumn"><div class="vHeader"><h1>Dinner</h1></div><div class="vColumn" id="vDinner' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '" onclick="vBuildEditModal(' + "'" + 'Dinner' + "'" + ')"><div class="RowImage" id="vRowImageDinner' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '"></div><div class="descriptionDiv" id="vDinner' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + 'Desc"></div></div></div>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+            //outputs the html INITIAL 2 SLIDES
+            $(".swiper-wrapper").html(vHtml);
+
+            if (vFirstSlideBuilt == false) {
+                vFillOutTable(vCurrentDayArray[vSlidesCounter], vCurrentSlideDate);
+            }
+
+            if (vFirstSlideBuilt == true) {
+                $('#vCurrentDisplayDate' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter).html(vFutureDisplayDate);
+                vFillOutTable(vCurrentDayArray[vSlidesCounter], vFutureDate);
+                $('#vCurrentDate' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter).val(vFutureDate);
+
+
+            }
+            vFirstSlideBuilt = true;
+        }
+
+        //takes in vBuildCounter
+        function vBuildSingleSlide(vSlidesCounter) {
+            var vSingleSlideString = '<!-- IF NOT 1 -->' +
+                '<div class="swiper-slide">' +
+                '<div class="vActivitiesTable">' +
+                '<div class="vDayRow">' +
+                '<form id="vUpload-image" action="./image.php" method="post" enctype="multipart/form-data">' +
+                '<div class="vUpload-wrapper">' +
+                '<h1>' + vCurrentDayArray[vSlidesCounter] + ' ' + vFutureDisplayDate + '</h1>' +
+                '<input type="file" name="uploadfile" id="vUpload-image-input" onchange="mySubmit(this.form)">' +
+                '</div>' +
+                '<input type="hidden" name="upload" value="image">' +
+                '<input class="vUpload-image-date" type="hidden" name="date" value="' + vFutureDate + '">' +
+                '</form>' +
+		'<div style="font-size: 25px; padding-top: 5px; padding-left: 5px; padding-right: 5px;">Sandwiches are always available during meal times</div>'+
+                '</div>' +
+                '<a href="https://www.dhalkc.com/community"><img class="vRedirectIcon" src="redirect-icon.png" alt="Redirect Icon"></a>' +
+                '<div class="container-fluid">' +
+                '<div class="row vBLDRow">' +
+                '<div class="col-sm p-0 vBreakfastHeadingColumn vHeadingColumn"><div class="vHeader"><h1>Breakfast</h1></div><div class="vColumn" id="vBreakfast' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '" onclick="vBuildEditModal(' + "'" + 'Breakfast' + "'" + ')"><div class="RowImage" id="vRowImageBreakfast' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '"></div><div class="descriptionDiv" id="vBreakfast' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + 'Desc"></div></div></div>' +
+                '<div class="col-sm p-0 vLunchHeadingColumn vHeadingColumn"><div class="vHeader"><h1>Lunch</h1></div><div class="vColumn" id="vLunch' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '" onclick="vBuildEditModal(' + "'" + 'Lunch' + "'" + ')"><div class="RowImage" id="vRowImageLunch' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '"></div><div class="descriptionDiv" id="vLunch' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + 'Desc"></div></div></div>' +
+                '<div class="col-sm p-0 vDinnerHeadingColumn vHeadingColumn"><div class="vHeader"><h1>Dinner</h1></div><div class="vColumn" id="vDinner' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '" onclick="vBuildEditModal(' + "'" + 'Dinner' + "'" + ')"><div class="RowImage" id="vRowImageDinner' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + '"></div><div class="descriptionDiv" id="vDinner' + vCurrentDayArray[vSlidesCounter] + vPrebuiltWeekCounter + 'Desc"></div></div></div>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+            return vSingleSlideString;
+        }
+
+        function vCloseModal(vModal) {
+            if(vModal == "vEditModal"){
+                document.getElementById("vEditModal").style.display = "none";
+                //10 second BUFFER so that the image wont instantly pop up as soon as they close the modal...
+                setTimeout(function() {
+                    document.getElementById("vImageOverlay").style.visibility = "visible";
+                    vIsModalOpen = false;
+                }, 10000);
+            }
+            else if(vModal == "vImageModal"){
+                document.getElementById("vImageModal").style.display = "none";
+            }
+        }
+
+        var vIsModalOpen = false;
+
+        function vShowModal(vModal) {
+            if(vModal == "vEditModal"){
+               document.getElementById("vEditModal").style.display = "block"; 
+            }
+            else if(vModal == "vImageModal"){
+                document.getElementById("vImageModal").style.display = "block";
+            }
+            document.getElementById("vImageOverlay").style.visibility = "hidden";
+            vIsModalOpen = true;
+        }
+
+        function vGetValue(vCategory) {
+            var vValue = $("#v" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + "Desc").html().replace(/<br \\="">/g, '\n');
+            return vValue;
+            //$('v' + vCategory + 'Textarea').text(vValue);
+        }
+
+        var vGlobalRowNumber;
+
+        //date to access file, row number for object and which row, and week number for document.getElementById
+        function vBuildEditModal(vCategory) {
+            vShowModal("vEditModal");
+            vGlobalRowNumber = vCategory;
+            var vModalString =
+                '<center>' +
+                '<div class="vDateHeader">' +
+                '<h1 class="vDateHeaderText">' + vCurrentDayArray[vDateDisplayCounter] + ' ' + vCurrentDisplayDate + '</h1>' +
+                '<div id="vExitButton" onclick="vCloseModal(\'vEditModal\')">X</div>' +
+                '</div>' +
+                '<div class="vModalParent">' +
+                '<div class="vModalElement" id="' + vCategory + '">' +
+                '<textarea id="v' + vCategory + 'Textarea" placeholder="Description">' +
+                //$("#v" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).text().replace('<br \\>', /\n/g) +
+                vGetValue(vCategory) +
+                '</textarea>' +
+                '</div>' +
+                '<div class="vModalElement">' +
+                '<input class="vColorSelect" id="vColorSelect' + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + '" value="">' +
+                '<button id="vColor1Button' + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + '" class="btn vColor1Button" onclick="vSelectColor(' + "'" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + "'" + "," + "'" + 'vColor1Button' + "'" + "," + "'#f8f8f8'" + ')">Gray</button>' +
+                '<button id="vColor2Button' + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + '" class="btn vColor2Button" onclick="vSelectColor(' + "'" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + "'" + "," + "'" + 'vColor2Button' + "'" + "," + "'#ccffcc'" + ')">Green</button>' +
+                '<button id="vColor3Button' + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + '" class="btn vColor3Button" onclick="vSelectColor(' + "'" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + "'" + "," + "'" + 'vColor3Button' + "'" + "," + "'#ffcccc'" + ')">Red</button>' +
+                '<button id="vColor4Button' + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + '" class="btn vColor4Button" onclick="vSelectColor(' + "'" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter + "'" + "," + "'" + 'vColor4Button' + "'" + "," + "'#ccccff'" + ')">Purple</button>' +
+                '<div id="vImageThumbnail">' +
+                '</div>' +
+                '<div id="vProgressContainer">'+
+                '<div id="vProgressBar">'+
+                '</div>'+
+                '</div>'+
+                '<form  id="vUpload-image-modal" action="./image.php?imageQuery=true&date=' + vCurrentSlideDate + '&category=' + vCategory + '" method="post" enctype="multipart/form-data">' +
+                '<div class="vUpload-wrapper">' +
+                '<button id="vUploadImageButton" class="btn btn-primary mt-3 m-3">Upload Image</button>' +
+                '<input accept="image/*" capture="camera" type="file" name="uploadfile" id="vUpload-image-input" onchange="xhrSubmitRow(this.form,' + "'" + vCategory + "'" + ')">' +
+                '</div>' +
+                '</form>' +
+                '<div id="imageSelectedMessage">New Image Selected</div>' +
+                '<button id="vUpdateButton" class="btn" onclick="vSaveModal(' + "'" + vCategory + "'" + ')">Update</button>' +
+                '</center>';
+            $("#vRowEdit").html(vModalString);
+            var color = document.getElementById('v' + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).style.backgroundColor;
+            if (color == "rgb(248, 248, 248)") {
+                $("#vColor1Button" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).css("border", "2px solid black");
+                $("#vColorSelect" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).attr('value', "rgb(248, 248, 248)");
+            }
+            else if (color == "rgb(204, 255, 204)") {
+                $("#vColor2Button" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).css("border", "2px solid black");
+                $("#vColorSelect" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).attr('value', "rgb(204, 255, 204)");
+            }
+            else if (color == "rgb(255, 204, 204)") {
+                $("#vColor3Button" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).css("border", "2px solid black");
+                $("#vColorSelect" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).attr('value', "rgb(255, 204, 204)");
+            }
+            else if (color == "rgb(204, 204, 255)") {
+                $("#vColor4Button" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).css("border", "2px solid black");
+                $("#vColorSelect" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).attr('value', "rgb(204, 204, 255)");
+            }
+            //set the image thumbnail 
+            vGetThumbnail(vCurrentSlideDate, vCategory);
+        }
+        
+        //SETS the innerHTML of the imageThumbnail div to the image div with the correct src if the image exists for that row and day
+        //ELSE keep the imageThumbnail div hidden
+        function vGetThumbnail(vDate, vCategory){
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function() {
+                //the json doesnt exist
+                if(this.responseText == "File Doesn't Exist"){
+                    //exit the function
+                    return;
+                }
+                //the json file exists
+                else {
+                    //get the object for the day
+                    var dayObject = JSON.parse(this.responseText);
+                    //if the row for that day already has an image
+                    if(dayObject[vCategory]["image"] != ""){
+                        //show the thumbnail div
+                        var thumbnail = document.getElementById("vImageThumbnail");
+                        setTimeout(function(){
+                            thumbnail.style.opacity = 1;    
+                        }, 500);
+                        //thumbnail.style.opacity = 1;
+                        //append to image src to prevent caching ie: "?seconds"
+                        var seconds = new Date().getTime() / 1000;
+                        //set the url of the image thumbnail div to the current day's row's image
+                        thumbnail.innerHTML = "<div id='xButton' onclick='removeImage(" + '"' + vCategory + '"' + ")'>X</div><img src='vData/rowImages/" + dayObject[vCategory]["image"] + "?" + seconds + "'/>";
+                    }
+                    //if the row for that day does not have an image
+                    else {
+                        //hide the image thumbnail div
+                        var thumbnail = document.getElementById("vImageThumbnail");
+                        thumbnail.innerHTML = "<div id='vNoImageMessage'><center><div id='vNoImageText'>No Image</div><center></div>";
+                        setTimeout(function(){
+                            thumbnail.style.opacity = 1;    
+                        }, 500);
+                    }    
+                }
+            }
+            xhr.open("POST", "vData/update.php");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send(vDate);
+        }
+        
+        function removeImage(vCategory){
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function() {
+                var thumbnail = document.getElementById("vImageThumbnail");
+                thumbnail.innerHTML = "<div id='vNoImageMessage'><center><div id='vNoImageText'>No Image</div><center></div>";
+                document.getElementById("vProgressContainer").style.opacity = 0;
+                document.getElementById("imageSelectedMessage").style.opacity = 0;
+                vFillOutTable(vCurrentDayArray[vDateDisplayCounter],vCurrentSlideDate);
+            }
+            xhr.open("POST", "vData/removeImage.php");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send("date=" + vCurrentSlideDate + "&category=" + vCategory);   
+        }
+
+        function vSelectColor(id, button, color) {
+
+            $("#vColorSelect" + id).attr('value', color);
+
+            if (button == "vColor1Button") {
+                $("#vColor1Button" + id).css("border", "2px solid black");
+                for (i = 2; i <= 4; i++) {
+                    $("#vColor" + i + "Button" + id).css("border", "0");
+                }
+            }
+            else if (button == "vColor2Button") {
+                $("#vColor2Button" + id).css("border", "2px solid black");
+                $("#vColor1Button" + id).css("border", "0");
+                for (i = 3; i <= 4; i++) {
+                    $("#vColor" + i + "Button" + id).css("border", "0");
+                }
+            }
+            else if (button == "vColor3Button") {
+                $("#vColor3Button" + id).css("border", "2px solid black");
+                $("#vColor4Button" + id).css("border", "0");
+                for (i = 1; i <= 2; i++) {
+                    $("#vColor" + i + "Button" + id).css("border", "0");
+                }
+            }
+            else if (button == "vColor4Button") {
+                $("#vColor4Button" + id).css("border", "2px solid black");
+                for (i = 1; i <= 3; i++) {
+                    $("#vColor" + i + "Button" + id).css("border", "0");
+                }
+            }
+        }
+
+        //saves changes to row
+        function vSaveModal(vCategory) {
+            
+            var vObjectRowNumber = vGlobalRowNumber;
+            var vCategoryId = "#v" + vCategory + "Textarea";
+            var vColor = $("#vColorSelect" + vCategory + vCurrentDayArray[vDateDisplayCounter] + vCurrentWeekCounter).attr("value");
+            var vCategoryDesc = $(vCategoryId).val().replace(/\n/g, '<br \\>');
+            var vDate = vCurrentSlideDate;
+            var vCategory = vGlobalRowNumber;
+            var vRowObject = new Object();
+
+            vRowObject["category"] = vCategory;
+            vRowObject["desc"] = vCategoryDesc;
+            vRowObject["date"] = vDate;
+            vRowObject["color"] = vColor;
+
+            var data = JSON.stringify(vRowObject);
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function() {
+                vUpdateTable();
+            };
+            xhr.open("POST", "vData/updateRow.php");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send(data);
+            vCloseModal("vEditModal");
+        }
+
+        function vNextDate() {
+            var day = new Date();
+            var currentDay = day.getDate();
+            var nextDay = new Date(day);
+            nextDay.setDate(day.getDate() + vDayCounter + 1);
+            vFutureDate = nextDay.getFullYear() + ('0' + (nextDay.getMonth() + 1)).slice(-2) + ('0' + nextDay.getDate()).slice(-2);
+            vFutureDisplayDate = vMonthArray[nextDay.getMonth()] + ' ' + ('0' + nextDay.getDate()).slice(-2);
+        }
+
+        function vNextDate2() {
+            var day = new Date();
+            var currentDay = day.getDate();
+            var nextDay = new Date(day);
+            nextDay.setDate(day.getDate() + vDayCounter2);
+            vCurrentSlideDate = nextDay.getFullYear() + ('0' + (nextDay.getMonth() + 1)).slice(-2) + ('0' + nextDay.getDate()).slice(-2);
+            vCurrentDisplayDate = vMonthArray[nextDay.getMonth()] + ' ' + ('0' + nextDay.getDate()).slice(-2);
+        }
+        
+        var preventCacheCounter = 0;
+
+        //fills out the table
+        function vFillOutTable(vDay, vDate) {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function() {
+                var vFileGUID;
+                var vTempObject;
+                if (this.responseText == "File Doesn't Exist") {}
+                else {
+                    vTempObject = JSON.parse(this.responseText);
+                    vFileGUID = vTempObject["guid"];
+                    if (vGUIDs[vDate] == vFileGUID) {}
+                    else {
+                        var seconds = new Date().getTime() / 1000;
+                        //sets the image div
+                        if(vTempObject["Breakfast"]["image"] != ""){
+                            $('#vRowImageBreakfast' + vDay + vCurrentWeekCounter).html("<img id='vRowImageImgBreakfast" + vDay + vCurrentWeekCounter + "' class='rowImage' src='vData/rowImages/" + vTempObject["Breakfast"]["image"] + "?" + seconds + "' />"); 
+                        } else {
+                            $('#vRowImageBreakfast' + vDay + vCurrentWeekCounter).html("");
+                        }
+                        if(vTempObject["Lunch"]["image"] != ""){
+                            $('#vRowImageLunch' + vDay + vCurrentWeekCounter).html("<img id='vRowImageImgLunch" + vDay + vCurrentWeekCounter + "' class='rowImage' src='vData/rowImages/" + vTempObject["Lunch"]["image"] + "?" + seconds + "' />"); 
+                        } else {
+                            $('#vRowImageLunch' + vDay + vCurrentWeekCounter).html("");
+                        }
+                        if(vTempObject["Dinner"]["image"] != ""){
+                            $('#vRowImageDinner' + vDay + vCurrentWeekCounter).html("<img id='vRowImageImgDinner" + vDay + vCurrentWeekCounter + "' class='rowImage' src='vData/rowImages/" + vTempObject["Dinner"]["image"] + "?" + seconds + "' />");
+                        } else {
+                            $('#vRowImageDinner' + vDay + vCurrentWeekCounter).html("");
+                        }
+                        $('#vBreakfast' + vDay + vCurrentWeekCounter + "Desc").html(vTempObject["Breakfast"]["desc"]);
+                        //set value of the vDescriptionCell textarea
+                        $('#vLunch' + vDay + vCurrentWeekCounter + "Desc").html(vTempObject["Lunch"]["desc"]);
+                        //set value fo the vLocationCell textarea
+                        $('#vDinner' + vDay + vCurrentWeekCounter + "Desc").html(vTempObject["Dinner"]["desc"]);
+                        $('#vBreakfast' + vDay + vCurrentWeekCounter).css("background-color", vTempObject["Breakfast"]["color"]);
+                        $('#vLunch' + vDay + vCurrentWeekCounter).css("background-color", vTempObject["Lunch"]["color"]);
+                        $('#vDinner' + vDay + vCurrentWeekCounter).css("background-color", vTempObject["Dinner"]["color"]);
+                        var vMemoryDate = vTempObject["date"];
+                        var vGUID = vTempObject["guid"];
+                        vGUIDs[vDate] = vGUID;
+                    }
+                }
+            };
+            xhr.open("POST", "vData/update.php");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send(vDate);
+        }
+
+
+        //reads the file every 10 seconds, if there are changes, fill out the table with the newest version of the file
+        function vUpdateTable() {
+            vFillOutTable(vCurrentDayArray[vDateDisplayCounter], vCurrentSlideDate);
+            setTimeout(function() {
+                vUpdateTable();
+                preventCacheCounter++;
+            }, 10000);
+        }
+
+        function refreshAt(hours, minutes, seconds) {
+            var now = new Date();
+            var then = new Date();
+
+            if (now.getHours() > hours ||
+                (now.getHours() == hours && now.getMinutes() > minutes) ||
+                now.getHours() == hours && now.getMinutes() == minutes && now.getSeconds() >= seconds) {
+                then.setDate(now.getDate() + 1);
+            }
+            then.setHours(hours);
+            then.setMinutes(minutes);
+            then.setSeconds(seconds);
+
+            var timeout = (then.getTime() - now.getTime());
+            setTimeout(function() { window.location.reload(true); }, timeout);
+        }
+
+        /** 
+            rebuild
+            LOGIC: 
+            
+            interval runs every 10 seconds, this time, we dont do a check for first set, and we also dont do a check
+            for has image been changed. We only do a check to see if the image exists or not
+            
+            on slide change, we check to see if there is an image for that date or not, if there is an image, then set the image background. Else do nothing.
+            
+            every 10 minutes check to see if the image has been changed, or if an image has been added, if either of these cases are true,
+            then you will have to load the image in.
+            
+            STYLE:
+            as of now, the default is display none, opacity 0.
+            
+            HOW:
+            1) On initial page load, instantly set the background image if there is one.
+            2) On slide change, set the background image if there is one.
+            
+            3) every 10 seconds check if a background has been set, if there is a background image, show it, else keep it hidden
+            4) every 10 minutes we check 
+                if a file exists, check if it has been set, if it hasn't then set the image
+                if a file exists, and it hasn't been changed, do nothing
+                if the file has been changed, re set the background image
+        */
+
+        //stores the dates that have background images
+        var hasBackgroundImage = {};
+
+        function imageInterval() {
+            //checks if there is a background image
+            if (hasBackgroundImage[vCurrentSlideDate]) {
+                if (vIsModalOpen == false) {
+                    //fade in the overlay
+                    document.getElementById("vImageOverlay").style.display = "block";
+                    $('#vImageOverlay').animate({ opacity: 1 }, 500);
+                }
+            }
+            setTimeout(function() {
+                //fade out the image
+                document.getElementById("vImageOverlay").style.opacity = "0";
+                //after the overlay is faded out, then set it to display none
+                setTimeout(function() {
+                    document.getElementById("vImageOverlay").style.display = "none";
+                }, 500);
+                //after 4 seconds, then wait 10 seconds to continue the loop
+                setTimeout(function() {
+                    imageInterval();
+                }, 10000)
+            }, 4000);
+        }
+
+        function setBackgroundImage(vFileName) {
+            var filename = "";
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function() {
+                //if the file exists
+                if (this.responseText != "Image File Doesn't Exist") {
+                    document.getElementById("vImageOverlay").style.background = "url(vData/" + this.responseText + "?" + new Date().getTime() + ")";
+                    filename = this.responseText;
+                    hasBackgroundImage[vCurrentSlideDate] = true;
+                }
+            };
+            xhr.open("POST", "vData/checkIfImageExists.php");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send(vCurrentSlideDate);
+            setTimeout(function() {
+                setBackgroundImage(filename);
+            }, 600000);
+        }
+
+        //deletes the previous days files
+        function deletePreviousDay() {
+            $.ajax({
+                url: "./vData/remove.php"
+            });
+        }
+
+        $(document).ready(function() {
+            //deletes the previous days files
+            deletePreviousDay();
+
+            $('#vRowEdit').on('click', function(e) {
+                if (e.target !== this)
+                    return;
+                vCloseModal();
+            });
+            vNextDate();
+            vNextDate2();
+
+            /* Builds initial 2 slides */
+            vBuildSlides(0);
+            vBuildSlides(1);
+
+            //Desktop App Initiation
+            vInitializeDesktopApp();
+
+            setTimeout(function() {
+                vUpdateTable();
+            }, 10000);
+
+            refreshAt(0, 47, 30);
+
+            //set the background image on page load
+            setBackgroundImage(vCurrentSlideDate + ".jpg");
+
+            //initialize the fade-in overlay interval
+            setTimeout(function() {
+                imageInterval();
+            }, 10000);
+        });
+    </script>
+</head>
+
+<body>
+    <!-- Slider main container -->
+    <div class="swiper-container">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper"></div>
+    </div>
+    <div id="vEditModal">
+        <div id="vRowEdit"></div>
+    </div>
+    <div id="vImageOverlay" class="vTransition"></div>
+    <div id="vImageTransparentEffect"></div>
+</body>
+
+</html>
+

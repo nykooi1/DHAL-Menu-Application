@@ -1,0 +1,459 @@
+.swiper-container {
+    width: 100vw;
+    /* height: 100vh; */
+}
+
+.vActivitiesTable {
+    width: 100vw;
+}
+
+.vDayRow {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    color: #000000;
+    background-color: #ffffff;
+}
+
+textarea {
+    border: none;
+    resize: none !important;
+    width: 100%;
+    height: 100%;
+}
+
+.vColumn {
+    vertical-align: top !important;
+    height: 80vh;
+    font-size: 2.2em;
+    line-height: 1.2em;
+    text-align: left;
+    border-top: 1px solid white;
+    overflow: hidden;
+    word-wrap: break-word;
+    color: black;
+}
+
+.vBreakfastHeadingColumn {
+    border-right: 1px solid white;
+    border-top: 1px solid white;
+    border-bottom: 1px solid white;
+}
+
+.vLunchHeadingColumn {
+    border-right: 1px solid white;
+    border-top: 1px solid white;
+    border-bottom: 1px solid white;
+}
+
+.vDinnerHeadingColumn {
+    border-top: 1px solid white;
+    border-bottom: 1px solid white;
+}
+
+.vHeadingColumn {
+    text-align: center;
+    /*background-color: #009900;*/
+    color: white;
+    width: 33% !important;
+}
+
+.vRedirectIcon {
+    position: absolute;
+    top: 10px;
+    right: 0;
+    width: 50px;
+    opacity: 0.5;
+}
+
+.vImageContainer{
+    width: 500px;
+}
+.vImage{
+    position: relative;
+    width: calc(500px / 3);
+    height: calc(200px / 3);
+    float: left;   
+}
+
+/* Tablet */
+@media only screen and (max-width:787px) {
+    select:active {
+        box-shadow: blue;
+    }
+    h1 {
+        font-size: 1.5em !important;
+    }
+    .vTimeColumn {
+        width: 20%;
+        text-align: center;
+    }
+
+    .vDescriptionColumn {
+        width: 57.5%;
+    }
+    .vColor1Button,
+    .vColor2Button,
+    .vColor3Button,
+    .vColor4Button {
+        margin: 3px !important;
+        width: 20% !important;
+        font-size: .7em !important;
+        text-align: center !important;
+    }
+    .vColumn {
+        font-size: 1.2em;
+        line-height: 1.2em;
+    }
+
+    .vHeadingColumn {
+        font-size: 1.2em;
+    }
+
+    .vDateHeaderText {
+        font-size: 1.6em !important;
+    }
+    .imageButton{
+        width:25% !important;
+        margin-left:10px !important;
+    }
+     .vRedirectIcon{
+        top:0;
+        width:45px;
+    }
+}
+
+textarea {
+    color: #000000 !important;
+    background-color: #f8f8f8 !important;
+}
+
+#vEditModal, #vImageModal{
+    display: none;
+    z-index: 1;
+    position: fixed;
+    height: 100%;
+    top: 0;
+    width: 100%;
+    max-height: 100%;
+    overflow: scroll;
+    background-color: #ffffff;
+}
+
+#vExitButton {
+    z-index: 1;
+    position: absolute;
+    right: 10px;
+    color: black;
+    font-size: 45px;
+    cursor: pointer;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#vRowEdit {
+    width: 100%;
+    height: 100%;
+}
+
+.vModalParent {
+    /*position: absolute;*/
+    width: 80vw;
+    max-width: 500px;
+    /*transform: translate(-50%, -30%);*/
+    top: 30%;
+    left: 50%;
+}
+
+.vOverflow {
+    max-height: 100vh;
+    overflow: scroll;
+}
+
+.vModalElement {
+    margin-top: 10px
+}
+
+.vDateHeader {
+    position: relative;
+    height: 10vh;
+}
+
+.vDateHeaderText {
+    margin: 0;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+}
+
+#vUpdateButton {
+    padding-right: 20px;
+    padding-left: 20px;
+    background-color: black;
+    color: white;
+}
+
+textarea {
+    padding-left: 10px;
+    padding-top: 5px;
+}
+
+.vUpload-wrapper input[type=file] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    opacity: 0;
+}
+
+.vUpload-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+#vImageOverlay {
+    z-index: 1;
+    position: absolute;
+    background-color: black !important;
+    background-position: center !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    top: 0;
+    opacity: 0;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+}
+
+
+.vTransition {
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+.vColor1Button {
+    background-color: #f8f8f8 !important;
+    width: 22%;
+    margin: 5px;
+}
+
+.vColor2Button {
+    background-color: #ccffcc !important;
+    width: 22%;
+    margin: 5px;
+}
+
+.vColor3Button {
+    background-color: #ffcccc !important;
+    width: 22%;
+    margin: 5px;
+}
+
+.vColor4Button {
+    background-color: #ccccff !important;
+    width: 22%;
+    margin: 5px;
+}
+
+.vColorSelect {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn.active.focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+
+.vModalElement textarea {
+    height: 30vh !important;
+}
+
+.vImageContainer{
+    width: 500px;
+    height: 60vh;
+    overflow: scroll;
+}
+
+.vHeader{
+    background-color: #009900;
+}
+.rowImage{
+    width:100%;
+}
+
+.RowImage{
+    float: left;
+}
+
+.vCurrentImageThumbnail{
+    margin-top: 20px;
+    width:300px;
+    height:auto;
+}
+
+#vAddImageButton{
+    margin-top:20px;
+}
+
+#vUpload-image-modal {
+    width: 100%;
+}
+
+.imageButton {
+    width: 28%;
+    float: left;
+    margin-left: 20px;
+}
+
+#vImageContainer{
+    opacity: 0;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#selectImageAlert{
+    width: 100%;
+    float: left;
+    visibility: hidden;
+}
+#imageSelectedMessage{
+    opacity:0;
+    color:red;
+    padding-top:7.5px;
+    padding-bottom:7.5px;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#vImageThumbnail{
+    position: relative;
+    width: 300px;
+    height: 100px;
+    margin-top: 29px;
+    opacity: 0;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#vImageThumbnail img{
+    width: 300px;
+    height: 100px;
+}
+
+#xButton{
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 30px;
+    padding-top: 5px;
+    padding-right: 5px;
+    font-weight: bold;
+    color: red;
+    cursor: pointer;
+}
+
+.descriptionDiv{
+    padding: 10px 10px 10px 10px;
+}
+
+#vNoImageMessage{
+    height: 100px;
+    font-size: 30px;
+    color: #a9a9a9;
+    text-align: center;
+}
+
+#vNoImageText{
+    width: 100%;
+    position: absolute;
+    bottom: 40px;
+}
+
+#vProgressContainer{
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+    /*display: none;*/
+    opacity: 0;
+    position:relative;
+    height:10px;
+    width:300px;
+    border:1px solid #000000;
+    margin: 14.5px 0px 14.5px 0px;
+}
+
+#vProgressBar{
+    position:absolute;
+    background-color:green;
+    width:1px;
+    height:100%;
+}
+
+#vUploadImageButton{
+    margin-top:0 !important;
+    margin-bottom:0 !important;
+}
+
+/* Mobile */
+
+@media only screen and (max-width:576px) {
+    .vImageContainer{
+        width: 300px !important;
+    }
+    .vImage{
+        position: relative;
+        width: calc(300px / 3);
+        height: calc(120px / 3);
+        float: left;   
+    }
+    .vBreakfastHeadingColumn {
+        border-bottom: 0px;
+    }
+
+    .vLunchHeadingColumn {
+        border-bottom: 0px;
+    }
+    .vColumn {
+        height: 60vh;
+    }
+    .vHeadingColumn {
+        width: 100% !important;
+    }
+    .vRedirectIcon {
+        top: 5px;
+    }
+    .vModalElement textarea {
+    height: 22vh !important;
+    
+    }
+    #vUploadImageButton{
+        font-size:.7em;
+    }
+    #vUpdateButton{
+        font-size:.7em;
+    }
+
+
+}
